@@ -13,16 +13,16 @@ bool readGraphs(const string& filename, vector<Graph>& graphs, vector<int>& numV
 int main() {
     vector<Graph> graphs;
     vector<int> numVertices;
+    int numGraphs { 0 };
 
     if (!readGraphs("./tests/q1/SIM/cubic_bipartite_26_vertices.txt", graphs, numVertices)) {
         cout << "Failed to open file." << endl;
         return 1;
     }
 
-    for (size_t i = 0; i < graphs.size(); ++i) {
-        int numGraphs = i + 1;
-        const Graph& graph = graphs[i];
-        const int& vertices = numVertices[i];
+    for (const auto& graph : graphs) {
+        numGraphs++;
+        const int& vertices = numVertices[numGraphs - 1];
 
         vector<char> colors(vertices, 'w');
         colors[0] = 'r';

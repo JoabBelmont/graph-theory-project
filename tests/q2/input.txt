@@ -1,4 +1,3 @@
-
 William Shatner;Loaded Weapon 1 (1993);Denise Richards
 Denise Richards;Wild Things (1998);Kevin Bacon
 Patrick Stewart;Prince of Egypt, The (1998);Steve Martin
@@ -49,5 +48,3 @@ Marilyn Monroe;Niagara (1953);George Ives
 George Ives;Stir of Echoes (1999);Kevin Bacon
 Jacques Perrin;Deserto dei tartari, Il (1976);Vittorio Gassman
 Vittorio Gassman;Sleepers (1996);Kevin Bacon
-
-

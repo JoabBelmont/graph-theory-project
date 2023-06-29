@@ -24,7 +24,6 @@ int main() {
 
     actors.push_back({"Kevin Bacon", "", 0});
 
-    cout << "Got here" << endl;
     // bubbleSort(actors, graph);
 
     cout << "Actors: " << endl;
@@ -82,6 +81,7 @@ void readCSV(const string& filename, vector<Actor>& actors, Graph& graph) {
         actors.push_back(actor);
 
         adjacencyMap[name2].push_back(name1);
+        adjacencyMap[name1].push_back(name2);
     }
 
     file.close();

@@ -1,68 +1,28 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include <list>
-#include <tuple>
-#include <unordered_map>
+#include "header.hpp"
 
-using namespace std;
+typedef pair<string, string> Neighbor;
 
-typedef vector<list<string>> Graph;
-typedef tuple<string, string, int> Actor;
-
-void bubbleSort(vector<Actor>& actors, Graph& graph);
-void readCSV(const string& filename, vector<Actor>& actors, Graph& graph);
-void printGraph(const Graph& graph);
-void BSF(const Graph& graph, vector<Actor>& actors, int start);
+void readCSV(const string& filename, Graph<string, Neighbor>& graph);
+void printGraph(const Graph<string, Neighbor>& graph);
+void BFS(const Graph<string, Neighbor>& graph, const string& start);
 
 int main() {
-    vector<Actor> actors;
-    Graph graph;
+    Graph<string, Neighbor> graph;
 
-    readCSV("./tests/q2/input.txt", actors, graph);
+    readCSV("./tests/q2/input.txt", graph);
 
-    actors.push_back({"Kevin Bacon", "", 0});
-
-    // bubbleSort(actors, graph);
-
-    cout << "Actors: " << endl;
-    for (const auto& actor : actors) {
-        cout << get<0>(actor) << endl;
-    }
-    cout << endl;
-
-    cout << "Movies: " << endl;
-    for (const auto& actor : actors) {
-        cout << get<1>(actor) << endl;
-    }
-    cout << endl;
-
-    cout << "Graph:" << endl;
+    // BFS(graph, "Kevin Bacon");
     printGraph(graph);
 
     return 0;
 }
 
-void bubbleSort(vector<Actor>& actors, Graph& graph) {
-    for (int i = 0; i < actors.size() - 1; ++i) {
-        for (int j = 0; j < actors.size() - i - 1; ++j) {
-            if (get<0>(actors[j]) > get<0>(actors[j + 1])) {
-                swap(actors[j], actors[j + 1]);
-                swap(graph[j], graph[j + 1]);
-            }
-        }
-    }
-}
-
-void readCSV(const string& filename, vector<Actor>& actors, Graph& graph) {
+void readCSV(const string& filename, Graph<string, Neighbor>& graph) {
     ifstream file(filename);
     if (!file.is_open()) {
         cout << "Failed to open file." << endl;
         exit(1);
     }
-
-    unordered_map<string, list<string>> adjacencyMap;
 
     string line;
     while (getline(file, line)) {
@@ -72,38 +32,79 @@ void readCSV(const string& filename, vector<Actor>& actors, Graph& graph) {
 
         istringstream iss(line);
         string name1, movie, name2;
-        Actor actor;
         getline(iss, name1, ';');
         getline(iss, movie, ';');
         getline(iss, name2, ';');
 
-        actor = {name1, movie, 0};
-        actors.push_back(actor);
-
-        adjacencyMap[name2].push_back(name1);
-        adjacencyMap[name1].push_back(name2);
+        graph[name2].push_back({name1, movie});
+        graph[name1].push_back({name2, movie});
     }
 
     file.close();
-
-    // Convert the adjacencyMap to the graph
-    for (const auto& entry : adjacencyMap) {
-        const string& name = entry.first;
-        const list<string>& neighbors = entry.second;
-
-        graph.push_back({name});
-        graph.back().insert(graph.back().end(), neighbors.begin(), neighbors.end());
-    }
 }
 
-void printGraph(const Graph& graph) {
-    for (const auto& adjacencyList : graph) {
-        for (const auto& actor : adjacencyList) {
-            cout << actor << " -> ";
+void printGraph(const Graph<string, Neighbor>& graph) {
+    for (const auto& entry : graph) {
+        const string& actor = entry.first;
+        const list<pair<string, string>>& neighbors = entry.second;
+
+        cout << actor << " -> ";
+        auto it = neighbors.begin();
+        auto last = neighbors.end();
+        --last;  // Move last iterator to the last neighbor
+
+        for (; it != last; ++it) {
+            cout << it->first << " -> ";
         }
-        cout << endl;
+
+        // Print the last neighbor without the arrow
+        cout << last->first << endl;
     }
 }
 
-void BSF(const Graph& graph, vector<Actor>& actors) {
+
+void BFS(const Graph<string, Neighbor>& graph, const string& start) {
+    // TODO: Implement breadth-first search algorithm
+    map<string, bool> visited;
+    map<string, int> distances;
+    map<string, string> parents;
+
+    for (const auto& entry : graph) {
+        const string& actor = entry.first;
+        visited[actor] = false;
+        distances[actor] = -1;
+        parents[actor] = "";
+    }
+
+    queue<string> q;
+    q.push(start);
+    visited[start] = true;
+    distances[start] = 0;
+
+    while (!q.empty()) {
+        string current = q.front();
+        q.pop();
+
+        // Process the current vertex
+        // You can perform any required operations here
+
+        // Traverse the neighbors of the current vertex
+        for (const auto& neighbor : graph.at(current)) {
+            const string& neighborName = neighbor.first;
+
+            if (!visited[neighborName]) {
+                visited[neighborName] = true;
+                distances[neighborName] = distances[current] + 1;
+                parents[neighborName] = current;
+                q.push(neighborName);
+            }
+        }
+    }
+
+    // Print the distances and parent actors
+    for (const auto& entry : distances) {
+        const string& actorName = entry.first;
+        cout << "O número de Bacon de " << actorName << " é " << distances[actorName];
+        cout << " pelo filme " << graph.at(actorName).front().second << endl;
+    }
 }

@@ -3,7 +3,6 @@
 typedef pair<string, string> Neighbor;
 
 void readCSV(const string& filename, Graph<string, Neighbor>& graph);
-void printGraph(const Graph<string, Neighbor>& graph);
 void BFS(const Graph<string, Neighbor>& graph, const string& start);
 
 int main() {
@@ -11,8 +10,7 @@ int main() {
 
     readCSV("./tests/q2/input.txt", graph);
 
-    // BFS(graph, "Kevin Bacon");
-    printGraph(graph);
+    BFS(graph, "Kevin Bacon");
 
     return 0;
 }
@@ -31,80 +29,73 @@ void readCSV(const string& filename, Graph<string, Neighbor>& graph) {
         }
 
         istringstream iss(line);
-        string name1, movie, name2;
-        getline(iss, name1, ';');
+        string leftName, movie, rightName;
+        getline(iss, leftName, ';');
         getline(iss, movie, ';');
-        getline(iss, name2, ';');
+        getline(iss, rightName, ';');
 
-        graph[name2].push_back({name1, movie});
-        graph[name1].push_back({name2, movie});
+        Neighbor neighbor1{rightName, movie};
+        Neighbor neighbor2{leftName, movie};
+
+        if (graph.count(leftName) == 0) {
+            graph[leftName] = {neighbor1};
+        } else {
+            graph[leftName].push_back(neighbor1);
+        }
+
+        if (graph.count(rightName) == 0) {
+            graph[rightName] = {neighbor2};
+        } else {
+            graph[rightName].push_back(neighbor2);
+        }
     }
 
     file.close();
 }
 
-void printGraph(const Graph<string, Neighbor>& graph) {
-    for (const auto& entry : graph) {
-        const string& actor = entry.first;
-        const list<pair<string, string>>& neighbors = entry.second;
-
-        cout << actor << " -> ";
-        auto it = neighbors.begin();
-        auto last = neighbors.end();
-        --last;  // Move last iterator to the last neighbor
-
-        for (; it != last; ++it) {
-            cout << it->first << " -> ";
-        }
-
-        // Print the last neighbor without the arrow
-        cout << last->first << endl;
-    }
-}
-
-
 void BFS(const Graph<string, Neighbor>& graph, const string& start) {
-    // TODO: Implement breadth-first search algorithm
-    map<string, bool> visited;
+    map<string, string> colors;
     map<string, int> distances;
     map<string, string> parents;
+    map<string, string> movies;
 
     for (const auto& entry : graph) {
         const string& actor = entry.first;
-        visited[actor] = false;
-        distances[actor] = -1;
+        colors[actor] = "White";
         parents[actor] = "";
+        distances[actor] = -1;
     }
 
     queue<string> q;
     q.push(start);
-    visited[start] = true;
+    colors[start] = "Grey";
     distances[start] = 0;
 
     while (!q.empty()) {
         string current = q.front();
         q.pop();
 
-        // Process the current vertex
-        // You can perform any required operations here
-
-        // Traverse the neighbors of the current vertex
         for (const auto& neighbor : graph.at(current)) {
             const string& neighborName = neighbor.first;
+            const string& movie = neighbor.second;
 
-            if (!visited[neighborName]) {
-                visited[neighborName] = true;
+            if (colors[neighborName] == "White") {
+                colors[neighborName] = "Grey";
                 distances[neighborName] = distances[current] + 1;
                 parents[neighborName] = current;
+                movies[neighborName] = movie;
                 q.push(neighborName);
             }
         }
+
+        colors[current] = "Black";
     }
 
-    // Print the distances and parent actors
     for (const auto& entry : distances) {
         const string& actorName = entry.first;
-        cout << "O número de Bacon de " << actorName << " é " << distances[actorName];
-        cout << " pelo filme " << graph.at(actorName).front().second << endl;
+        const string& movie = movies[actorName];
+        cout << "O numero de Bacon de " << actorName << " é " << distances[actorName];
+        cout << " pelo filme " << movie << endl;
     }
 }
+

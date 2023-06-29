@@ -1,7 +1,8 @@
+.vscode/
+
 # Ignores all extension-less files
 *
 !*/
 !*.*
-
-.vscode/
-a/
+# Except makefiles
+![Mm]akefile

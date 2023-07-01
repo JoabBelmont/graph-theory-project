@@ -1,5 +1,3 @@
-.vscode/
-
 # Ignores all extension-less files
 *
 !*/

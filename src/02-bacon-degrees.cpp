@@ -37,17 +37,8 @@ void readCSV(const string& filename, Graph<string, Neighbor>& graph) {
         Neighbor neighbor1{rightName, movie};
         Neighbor neighbor2{leftName, movie};
 
-        if (graph.count(leftName) == 0) {
-            graph[leftName] = {neighbor1};
-        } else {
-            graph[leftName].push_back(neighbor1);
-        }
-
-        if (graph.count(rightName) == 0) {
-            graph[rightName] = {neighbor2};
-        } else {
-            graph[rightName].push_back(neighbor2);
-        }
+        graph[leftName].push_back(neighbor1);
+        graph[rightName].push_back(neighbor2);
     }
 
     file.close();

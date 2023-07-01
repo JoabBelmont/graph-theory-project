@@ -1,67 +1,94 @@
 #include "header.hpp"
 
-// KosaRaju's algorithm
+// Kosaraju's algorithm
 
-void DFS(const Graph<int, int>& graph);
-void DFSVisit(const Graph<int, int>& graph, int u, map<int, string>& colors, map<int, int>& distances, map<int, int>& parents, stack<int>& s);
+void printGraph(Graph<int, int>& graph);
+void Kosaraju(Graph<int, int>& graph);
+void DFSVisit(Graph<int, int>& graph, int u, vector<string>& colors, stack<int>& stack);
+void DFSVisit(Graph<int, int>& graph, int u, vector<string>& colors, vector<int>& component);
 
-void flipAllEdges(Graph<int, int>& graph);
+void transposeGraph(Graph<int, int>& graph);
 
 void readGraph(const string& filename, Graph<int, int>& graph);
-void printGraph(const Graph<int, int>& graph);
 
 int main() {
     Graph<int, int> graph;
     readGraph("./tests/q3/grafo3.txt", graph);
-    flipAllEdges(graph);
-    printGraph(graph);
+
+    // printGraph(graph);
+
+    Kosaraju(graph);
 
     return 0;
 }
 
-void DFS(const Graph<int, int>& graph) {
-    map<int, string> colors;
-    map<int, int> distances;
-    map<int, int> parents;
-    stack<int> s;
+void Kosaraju(Graph<int, int>& graph) {
+    vector<string> colors (graph.size(), "White");
+    stack<int> stack;
+    vector<int> component, componentCopy;
+    vector<vector<int>> SCCs;
 
     for (const auto& entry : graph) {
         int u = entry.first;
-        colors[u] = "White";
-        parents[u] = -1;
-        distances[u] = -1;
-    }
 
-    for (const auto& entry : graph) {
-        int u = entry.first;
         if (colors[u] == "White") {
-            DFSVisit(graph, u, colors, distances, parents, s);
+            DFSVisit(graph, u, colors, stack);
         }
     }
 
-    while (!s.empty()) {
-        cout << s.top() << " ";
-        s.pop();
+    transposeGraph(graph);
+
+    for (auto& color : colors) {
+        color = "White";
     }
-    cout << endl;
+
+    while (!stack.empty()) {
+        int u = stack.top();
+        stack.pop();
+
+        if (colors[u] == "White") {
+            DFSVisit(graph, u, colors, component);
+            componentCopy = component;
+            component.clear();
+            SCCs.push_back(componentCopy);
+        }
+    }
+
+    for (const auto& SCC : SCCs) {
+        for (int u : SCC) {
+            cout << u << " ";
+        }
+        cout << endl;
+    }
 }
 
-void DFSVisit(const Graph<int, int>& graph, int u, map<int, string>& colors, map<int, int>& distances, map<int, int>& parents, stack<int>& s) {
+void DFSVisit(Graph<int, int>& graph, int u, vector<string>& colors, stack<int>& stack) {
     colors[u] = "Gray";
 
     for (int v : graph.at(u)) {
         if (colors[v] == "White") {
-            parents[v] = u;
-            distances[v] = distances[u] + 1;
-            DFSVisit(graph, v, colors, distances, parents, s);
+            DFSVisit(graph, v, colors, stack);
         }
     }
 
     colors[u] = "Black";
-    s.push(u);
+    stack.push(u);
 }
 
-void flipAllEdges(Graph<int, int>& graph) {
+void DFSVisit(Graph<int, int>& graph, int u, vector<string>& colors, vector<int>& component) {
+    colors[u] = "Gray";
+    component.push_back(u);
+
+    for (int v : graph.at(u)) {
+        if (colors[v] == "White") {
+            DFSVisit(graph, v, colors, component);
+        }
+    }
+
+    colors[u] = "Black";
+}
+
+void transposeGraph(Graph<int, int>& graph) {
     Graph<int, int> flippedGraph;
 
     for (const auto& entry : graph) {
@@ -71,8 +98,9 @@ void flipAllEdges(Graph<int, int>& graph) {
         }
     }
 
-    graph = flippedGraph;
+    graph = move(flippedGraph);
 }
+
 
 void readGraph(const string& filename, Graph<int, int>& graph) {
     ifstream file(filename);
@@ -81,23 +109,26 @@ void readGraph(const string& filename, Graph<int, int>& graph) {
         exit(1);
     }
 
-    int vertices, edges;
-    file >> vertices >> edges;
+    int edgesNum, verticesNum;
+    file >> verticesNum >> edgesNum;
 
-    for (int i = 0; i < edges; ++i) {
+    for (int i = 0; i < edgesNum; ++i) {
         int u, v;
         file >> u >> v;
         graph[u].push_back(v);
+        graph[v] = {};
     }
 
     file.close();
 }
 
-void printGraph(const Graph<int, int>& graph) {
+
+void printGraph(Graph<int, int>& graph) {
     for (const auto& entry : graph) {
-        cout << entry.first << ": ";
-        for (int neighbor : entry.second) {
-            cout << neighbor << " ";
+        int u = entry.first;
+        cout << u << ": ";
+        for (int v : entry.second) {
+            cout << v << " ";
         }
         cout << endl;
     }

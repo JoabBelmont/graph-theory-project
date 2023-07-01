@@ -8,9 +8,8 @@
 
 /* Building graphs */
 #include <map>
+#include <unordered_map>
 #include <list>
-#include <tuple>
-#include <algorithm>
 
 /* Search */
 #include <queue>

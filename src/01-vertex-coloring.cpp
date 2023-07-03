@@ -1,11 +1,13 @@
 #include "header.hpp"
 
-bool isBipartite(const Graph<int, int>& graph, vector<char>& colors);
-void addEdge(Graph<int, int>& graph, int u, int v);
-bool readGraphs(const string& filename, vector<Graph<int, int>>& graphs, vector<int>& numVertices);
+using Graph = map<int, list<int>>;
+
+bool isBipartite(const Graph& graph, vector<char>& colors);
+void addEdge(Graph& graph, int u, int v);
+bool readGraphs(const string& filename, vector<Graph>& graphs, vector<int>& numVertices);
 
 int main() {
-    vector<Graph<int, int>> graphs;
+    vector<Graph> graphs;
     vector<int> numVertices;
     int numGraphs = 0;
 
@@ -15,7 +17,7 @@ int main() {
     }
 
     for (size_t i = 0; i < graphs.size(); ++i) {
-        const Graph<int, int>& graph = graphs[i];
+        const Graph& graph = graphs[i];
         int vertices = numVertices[i];
 
         vector<char> colors(vertices, 'w');
@@ -28,7 +30,7 @@ int main() {
     return 0;
 }
 
-bool isBipartite(const Graph<int, int>& graph, vector<char>& colors) {
+bool isBipartite(const Graph& graph, vector<char>& colors) {
     int numVertices = colors.size();
 
     for (int i = 0; i < numVertices; ++i) {
@@ -50,12 +52,12 @@ bool isBipartite(const Graph<int, int>& graph, vector<char>& colors) {
     return true;
 }
 
-void addEdge(Graph<int, int>& graph, int u, int v) {
+void addEdge(Graph& graph, int u, int v) {
     graph[u].push_back(v);
     graph[v].push_back(u);
 }
 
-bool readGraphs(const string& filename, vector<Graph<int, int>>& graphs, vector<int>& numVertices) {
+bool readGraphs(const string& filename, vector<Graph>& graphs, vector<int>& numVertices) {
     cout << "Reading graphs from file: " << filename << endl;
 
     ifstream file(filename);
@@ -65,7 +67,7 @@ bool readGraphs(const string& filename, vector<Graph<int, int>>& graphs, vector<
 
     int vertices, edges;
     while (file >> vertices >> edges) {
-        Graph<int, int> graph;
+        Graph graph;
         for (int i = 0; i < edges; ++i) {
             int u, v;
             file >> u >> v;

@@ -1,5 +1,8 @@
 #include "header.hpp"
 
+template <typename T, typename Y>
+using Graph = map<T, list<Y>>;
+
 typedef pair<string, string> Neighbor;
 
 void readCSV(const string& filename, Graph<string, Neighbor>& graph);
@@ -59,7 +62,7 @@ void BFS(const Graph<string, Neighbor>& graph, const string& start) {
 
     queue<string> q;
     q.push(start);
-    colors[start] = "Grey";
+    colors[start] = "Gray";
     distances[start] = 0;
 
     while (!q.empty()) {
@@ -71,7 +74,7 @@ void BFS(const Graph<string, Neighbor>& graph, const string& start) {
             const string& movie = neighbor.second;
 
             if (colors[neighborName] == "White") {
-                colors[neighborName] = "Grey";
+                colors[neighborName] = "Gray";
                 distances[neighborName] = distances[current] + 1;
                 parents[neighborName] = current;
                 movies[neighborName] = movie;

@@ -1,87 +1,141 @@
-#include <iostream>
-#include <vector>
-#include <stack>
-#include <algorithm>
-using namespace std;
+#include "header.hpp"
 
-void fillOrder(int v, const vector<vector<int>>& adjList, vector<bool>& visited, stack<int>& Stack) {
-    visited[v] = true;
+using Graph = vector<list<int>>;
 
-    for (int u : adjList[v]) {
-        if (!visited[u]) {
-            fillOrder(u, adjList, visited, Stack);
-        }
-    }
+// Kosaraju's algorithm
 
-    Stack.push(v);
-}
+void Kosaraju(Graph& graph);
+void DFSVisit(Graph& graph, int u, vector<string>& colors, stack<int>& stack);
+void DFSVisit(Graph& graph, int u, vector<string>& colors, vector<int>& component);
 
-vector<vector<int>> getTranspose(const vector<vector<int>>& adjList) {
-    int V = adjList.size();
-    vector<vector<int>> transposedAdjList(V);
+void transposeGraph(Graph& graph);
 
-    for (int v = 0; v < V; ++v) {
-        for (int u : adjList[v]) {
-            transposedAdjList[u].push_back(v);
-        }
-    }
-
-    return transposedAdjList;
-}
-
-void DFSUtil(int v, const vector<vector<int>>& adjList, vector<bool>& visited, vector<int>& component) {
-    visited[v] = true;
-    component.push_back(v);
-
-    for (int u : adjList[v]) {
-        if (!visited[u]) {
-            DFSUtil(u, adjList, visited, component);
-        }
-    }
-}
-
-void printSCCs(const vector<vector<int>>& adjList) {
-    int V = adjList.size();
-    vector<bool> visited(V, false);
-    stack<int> Stack;
-
-    for (int v = 0; v < V; ++v) {
-        if (!visited[v]) {
-            fillOrder(v, adjList, visited, Stack);
-        }
-    }
-
-    vector<vector<int>> transposedAdjList = getTranspose(adjList);
-    fill(visited.begin(), visited.end(), false);
-
-    while (!Stack.empty()) {
-        int v = Stack.top();
-        Stack.pop();
-
-        if (!visited[v]) {
-            vector<int> component;
-            DFSUtil(v, transposedAdjList, visited, component);
-
-            // Print the strongly connected component
-            for (int u : component) {
-                cout << u << " ";
-            }
-            cout << endl;
-        }
-    }
-}
+void printGraph(Graph& graph);
+void readGraph(const string& filename, Graph& graph);
 
 int main() {
-    vector<vector<int>> adjList = {
-        {1, 0},
-        {0, 2},
-        {2, 1},
-        {0, 3},
-        {3, 4},
-    };
+    Graph graph;
+    readGraph("../tests/q3/grafo3.txt", graph);
 
-    cout << "Following are strongly connected components in the given graph:\n";
-    printSCCs(adjList);
+    printGraph(graph);
+    cout << endl;
+
+    Kosaraju(graph);
 
     return 0;
+}
+
+void Kosaraju(Graph& graph) {
+    vector<string> colors;
+    stack<int> stack;
+    vector<int> component, componentCopy;
+    vector<vector<int>> SCCs;
+
+    size_t verticesNum = graph.size();
+    colors.resize(verticesNum);
+
+    for (int i = 0; i < verticesNum; ++i)
+        colors.push_back("White");
+    
+
+    // First DFS traversal
+    for (int u = 0; u < verticesNum; ++u)
+        if (colors[u] == "White")
+            DFSVisit(graph, u, colors, stack);
+
+
+    // Transpose the graph
+    transposeGraph(graph);
+
+    // Reset colors map to all vertices set to "White"
+    for (auto& color : colors)
+        color = "White";
+
+    // Second DFS traversal to find strongly connected components
+    while (!stack.empty()) {
+        int u = stack.top();
+        stack.pop();
+
+        if (colors[u] == "White") {
+            DFSVisit(graph, u, colors, component);
+            componentCopy = component;
+            component.clear();
+            SCCs.push_back(componentCopy);
+        }
+    }
+
+    // Print the strongly connected components
+    for (const auto& SCC : SCCs) {
+        for (int u : SCC)
+            cout << u << " ";
+        cout << endl;
+    }
+}
+
+void DFSVisit(Graph& graph, int u, vector<string>& colors, stack<int>& stack) {
+    colors[u] = "Gray";
+
+    for (int v : graph.at(u))
+        if (colors[v] == "White")
+            DFSVisit(graph, v, colors, stack);
+
+    colors[u] = "Black";
+    stack.push(u);
+}
+
+void DFSVisit(Graph& graph, int u, vector<string>& colors, vector<int>& component) {
+    colors[u] = "Gray";
+    component.push_back(u);
+
+    for (int v : graph.at(u))
+        if (colors[v] == "White")
+            DFSVisit(graph, v, colors, component);
+
+    colors[u] = "Black";
+}
+
+void transposeGraph(Graph& graph) {
+    size_t verticesNum = graph.size();
+    Graph transposedGraph(verticesNum);
+
+    for (int u = 0; u < verticesNum; ++u) {
+        for (int v : graph[u]) {
+            transposedGraph[v].push_back(u);
+        }
+    }
+
+    graph = move(transposedGraph);
+}
+
+
+void readGraph(const string& filename, Graph& graph) {
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cout << "Failed to open file." << endl;
+        exit(1);
+    }
+
+    int edgesNum, verticesNum;
+    file >> verticesNum >> edgesNum;
+
+    for (int i = 0; i < verticesNum; ++i)
+        graph.push_back({});
+
+    for (int i = 0; i < edgesNum; ++i) {
+        int u, v;
+        file >> u >> v;
+        graph[u].push_back(v);
+    }
+
+    file.close();
+}
+
+void printGraph(Graph& graph) {
+    for (int u = 0; u < graph.size(); ++u) {
+        cout << u << ": ";
+        for (int v : graph[u]) {
+            cout << v << " ";
+        }
+        cout << endl;
+    }
 }

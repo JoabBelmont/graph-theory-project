@@ -16,5 +16,3 @@
 #include <stack>
 
 using namespace std;
-template <typename T, typename Y>
-using Graph = map<T, list<Y>>;

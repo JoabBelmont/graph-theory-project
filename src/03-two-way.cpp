@@ -21,12 +21,18 @@ int main() {
 
     Kosaraju(graph, SCCs);
 
+    for (auto& SCC : SCCs) {
+        for (int u : SCC)
+            cout << u << " ";
+        cout << endl;
+    }
+
     for (auto& SCC : SCCs)
         createTwoWays(graph, SCC);
 
     transposeGraph(graph);
 
-    printEdges(graph);
+    // printEdges(graph);
 
     return 0;
 }
@@ -60,7 +66,6 @@ void Kosaraju(Graph& graph, vector<vector<int>>& SCCs) {
     for (int u = 0; u < verticesNum; ++u)
         if (colors[u] == "White")
             DFSVisit(graph, u, colors, stack);
-
 
     // Transpose the graph
     transposeGraph(graph);

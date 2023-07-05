@@ -5,109 +5,71 @@ using Graph = vector<list<int>>;
 void printEdges(Graph& graph);
 void readGraph(const string& filename, Graph& graph);
 
-void DFSVisit(Graph& graph, int u, vector<string>& colors, stack<int>& stack);
-void DFSVisit(Graph& graph, int u, vector<string>& colors, vector<int>& component);
+void DFSVisit(Graph& graph, int u, vector<string>& colors, 
+              vector<int>& parents, vector<int>& discoveryTimes, 
+              vector<int>& lowTimes, int& time, vector<pair<int, int>>& bridges);
 void transposeGraph(Graph& graph);
-void Kosaraju(Graph& graph, vector<vector<int>>& SCCs);
-void createTwoWays(Graph& graph, vector<int>& SCC);
-bool checkComponent(int& vertex, vector<int>& component);
+void DFS(Graph& graph, vector<pair<int, int>>& bridges);
 
 int main() {
     Graph graph;
-    vector<vector<int>> SCCs;
-    readGraph("./tests/q3/grafo2.txt", graph);
+    vector<pair<int, int>> bridges;
+    readGraph("./tests/q3/grafo3.txt", graph);
 
-    printEdges(graph);
+    DFS(graph, bridges);
 
-    Kosaraju(graph, SCCs);
-
-    for (auto& SCC : SCCs) {
-        for (int u : SCC)
-            cout << u << " ";
-        cout << endl;
+    for (auto [u, v] : bridges) {
+        cout << u << " " << v << endl;
     }
-
-    for (auto& SCC : SCCs)
-        createTwoWays(graph, SCC);
-
-    transposeGraph(graph);
 
     // printEdges(graph);
 
     return 0;
 }
 
-void createTwoWays(Graph& graph, vector<int>& SCC) {
-    for (int u : SCC) {
-        for (int v : graph[u]) {
-            if (!checkComponent(v, SCC))
-                graph[v].push_back(u);
-        }
-    }
-}
-
-bool checkComponent(int& vertex, vector<int>& component) {
-    for (int u : component)
-        if (u == vertex)
-            return true;
-
-    return false;
-}
-
-void Kosaraju(Graph& graph, vector<vector<int>>& SCCs) {
-    vector<string> colors;
-    stack<int> stack;
-    vector<int> component, componentCopy;
-
+void DFS(Graph& graph, vector<pair<int, int>>& bridges) {
+    int time { 0 };
     size_t verticesNum = graph.size();
+    vector<string> colors;
+    vector<int> discoveryTimes(verticesNum), 
+    lowTimes(verticesNum), 
+    parents(verticesNum);
+
     colors.resize(verticesNum, "White");
 
+    parents[0] = 0;
     // First DFS traversal
     for (int u = 0; u < verticesNum; ++u)
         if (colors[u] == "White")
-            DFSVisit(graph, u, colors, stack);
+            DFSVisit(graph, u, colors, parents, discoveryTimes, lowTimes, time, bridges);
+}
 
-    // Transpose the graph
-    transposeGraph(graph);
+void DFSVisit(Graph& graph, int u, vector<string>& colors, 
+              vector<int>& parents, vector<int>& discoveryTimes, 
+              vector<int>& lowTimes, int& time, vector<pair<int, int>>& bridges) {
+    colors[u] = "Gray";
+    time += 1;
+    lowTimes[u] = discoveryTimes[u] = time;
 
-    // Reset colors map to all vertices set to "White"
-    for (auto& color : colors)
-        color = "White";
-
-    // Second DFS traversal to find strongly connected components
-    while (!stack.empty()) {
-        int u = stack.top();
-        stack.pop();
-
-        if (colors[u] == "White") {
-            DFSVisit(graph, u, colors, component);
-            componentCopy = component;
-            component.clear();
-            SCCs.push_back(componentCopy);
+    for (int v : graph.at(u)) {
+        if (colors[v] == "White") {
+            parents[v] = u;
+            DFSVisit(graph, v, colors, parents, discoveryTimes, lowTimes, time, bridges);
+            if (lowTimes[v] < lowTimes[u])
+                lowTimes[u] = lowTimes[v];
+            if (discoveryTimes[u] < lowTimes[v]) {
+                bridges.push_back({u, v});
+            }
         }
     }
-}
-
-void DFSVisit(Graph& graph, int u, vector<string>& colors, stack<int>& stack) {
-    colors[u] = "Gray";
-
-    for (int v : graph.at(u))
-        if (colors[v] == "White")
-            DFSVisit(graph, v, colors, stack);
 
     colors[u] = "Black";
-    stack.push(u);
-}
 
-void DFSVisit(Graph& graph, int u, vector<string>& colors, vector<int>& component) {
-    colors[u] = "Gray";
-    component.push_back(u);
-
-    for (int v : graph.at(u))
-        if (colors[v] == "White")
-            DFSVisit(graph, v, colors, component);
-
-    colors[u] = "Black";
+    for (int v : graph.at(u)) {
+        if (v != parents[u]) {
+            lowTimes[u] = min(lowTimes[u], lowTimes[v]);
+        }
+    }
 }
 
 void transposeGraph(Graph& graph) {
@@ -140,6 +102,7 @@ void readGraph(const string& filename, Graph& graph) {
         int u, v;
         file >> u >> v;
         graph[u].push_back(v);
+        graph[v].push_back(u);
     }
 
     file.close();

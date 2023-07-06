@@ -1,33 +1,116 @@
+/**
+ * @file 03-two-way.cpp
+ * @authors Antônio Joabe Alves Morais (539029)
+ *          Iarley Natã Lopes Souza (535779)
+ * @brief Nesta solução, direcionamos todas as arestas de um grafo
+ *        não direcionado, de forma que o resultado seja um grafo
+ *        fortemente conexo. 
+ * @version 0.1
+ * @date 2023-07-04
+ */
+
 #include "header.hpp"
 
 using Graph = vector<list<int>>;
 
+/**
+ * @brief Imprime todas as arestas de um grafo
+ * 
+ * @param graph Grafo a ser impresso
+ */
 void printEdges(Graph& graph);
+/**
+ * @brief Lê um arquivo de nome filename e monta
+ *        um grafo com base nos dados que o arquivo
+ *        providencia.
+ * 
+ * @param filename Nome e caminho do arquivo
+ * @param graph Grafo que vai ser gerado
+ */
 void readGraph(const string& filename, Graph& graph);
 
-void DFSVisit(Graph& graph, int u, vector<string>& colors, 
+/**
+ * @brief Faz uma DFS modificada no grafo, de forma que
+ *        além do executar o algoritmo normal, a função também
+ *        encontra as arestas que são pontes.
+ * 
+ * @param graph Grafo a ser analisado
+ * @param bridges Lista de arestas que são pontes
+ */
+void bridgesDFS(Graph& graph, vector<pair<int, int>>& bridges);
+
+/**
+ * @brief Função auxiliar da DFS, que executa o algoritmo
+ *        normal e encontra as arestas que são pontes.
+ * 
+ * @param graph Grafo a ser analisado
+ * @param u Vértice atual
+ * @param colors Cores de todos os vértices do grafo
+ * @param parents Pais de todos os vértices do grafo
+ * @param discoveryTimes Tempos de descoberta de todos os vértices do grafo
+ * @param lowTimes Menor tempo de descoberta de todos os vértices do grafo
+ * @param time Tempo atual
+ * @param bridges Lista de arestas que são pontes
+ */
+void bridgesDFSVisit(Graph& graph, int u, vector<string>& colors, 
               vector<int>& parents, vector<int>& discoveryTimes, 
               vector<int>& lowTimes, int& time, vector<pair<int, int>>& bridges);
+
+/**
+ * @brief Faz uma DFS modificada no grafo,
+ *        direcionando fortemente todas as arestas
+ *        que não são pontes.
+ * 
+ * @param graph Grafo a ser analisado
+ */
+
+void directedDFS(Graph& graph);
+
+/**
+ * @brief Função auxiliar da DFS, que executa o algoritmo
+ *        normal e direciona fortemente todas as arestas
+ *        que não são pontes.
+ * 
+ * @param graph Grafo a ser analisado
+ * @param u Vértice atual
+ * @param colors Cores de todos os vértices do grafo
+ * @param discoveryTimes Tempos de descoberta de todos os vértices do grafo
+ * @param time Tempo atual
+ */
+void directedDFSVisit(Graph& graph, int u, vector<string>& colors, vector<int>& discoveryTimes, int& time);
+
+/**
+ * @brief Transpõe um grafo, ou seja, inverte a direção de todas as arestas
+ * 
+ * @param graph Grafo a ser transposto
+ */
 void transposeGraph(Graph& graph);
-void DFS(Graph& graph, vector<pair<int, int>>& bridges);
 
 int main() {
     Graph graph;
     vector<pair<int, int>> bridges;
     readGraph("./tests/q3/grafo3.txt", graph);
 
-    DFS(graph, bridges);
+    bridgesDFS(graph, bridges);
+    directedDFS(graph);
 
+    // Adiciona as arestas que são pontes novamente
     for (auto [u, v] : bridges) {
-        cout << u << " " << v << endl;
+        graph[u].push_back(v);
+        graph[v].push_back(u);
     }
 
-    // printEdges(graph);
+    for (auto& list : graph) {
+        list.sort();
+    }
+
+    printEdges(graph);
 
     return 0;
 }
 
-void DFS(Graph& graph, vector<pair<int, int>>& bridges) {
+void bridgesDFS(Graph& graph, vector<pair<int, int>>& bridges) {
+    // Inicializa as variáveis referentes à DFS
     int time { 0 };
     size_t verticesNum = graph.size();
     vector<string> colors;
@@ -36,27 +119,38 @@ void DFS(Graph& graph, vector<pair<int, int>>& bridges) {
     parents(verticesNum);
 
     colors.resize(verticesNum, "White");
-
     parents[0] = 0;
-    // First DFS traversal
+
+    // Realiza a DFS
     for (int u = 0; u < verticesNum; ++u)
         if (colors[u] == "White")
-            DFSVisit(graph, u, colors, parents, discoveryTimes, lowTimes, time, bridges);
+            bridgesDFSVisit(graph, u, colors, parents, discoveryTimes, lowTimes, time, bridges);
+
+    // Remove todas as arestas que são pontes
+    for (auto [u, v] : bridges) {
+        graph[u].remove(v);
+        graph[v].remove(u);
+    }
 }
 
-void DFSVisit(Graph& graph, int u, vector<string>& colors, 
+void bridgesDFSVisit(Graph& graph, int u, vector<string>& colors, 
               vector<int>& parents, vector<int>& discoveryTimes, 
               vector<int>& lowTimes, int& time, vector<pair<int, int>>& bridges) {
     colors[u] = "Gray";
+    // Incrementa o tempo 
     time += 1;
+    // e atribui o tempo de descoberta e o menor tempo de descoberta
     lowTimes[u] = discoveryTimes[u] = time;
 
     for (int v : graph.at(u)) {
         if (colors[v] == "White") {
             parents[v] = u;
-            DFSVisit(graph, v, colors, parents, discoveryTimes, lowTimes, time, bridges);
+            bridgesDFSVisit(graph, v, colors, parents, discoveryTimes, lowTimes, time, bridges);
+            // Atualiza o menor tempo de descoberta
             if (lowTimes[v] < lowTimes[u])
                 lowTimes[u] = lowTimes[v];
+            // Se o menor tempo de descoberta de v for maior que o tempo de descoberta de u,
+            // então a aresta (u, v) é uma ponte.
             if (discoveryTimes[u] < lowTimes[v]) {
                 bridges.push_back({u, v});
             }
@@ -65,11 +159,50 @@ void DFSVisit(Graph& graph, int u, vector<string>& colors,
 
     colors[u] = "Black";
 
+    /* Atualiza o menor tempo de descoberta de u
+     * com base nos menores tempos de descoberta
+     * de seus vértices adjacentes (exceto do pai) */
     for (int v : graph.at(u)) {
         if (v != parents[u]) {
             lowTimes[u] = min(lowTimes[u], lowTimes[v]);
         }
     }
+}
+
+void directedDFS(Graph& graph) {
+    int time { 0 };
+    size_t verticesNum = graph.size();
+    vector<string> colors;
+    vector<int> discoveryTimes(verticesNum);
+
+    colors.resize(verticesNum, "White");
+
+    for (int u = 0; u < verticesNum; ++u) {
+        if (colors[u] == "White") {
+            directedDFSVisit(graph, u, colors, discoveryTimes, time);
+        }
+    }
+}
+
+void directedDFSVisit(Graph& graph, int u, vector<string>& colors, vector<int>& discoveryTimes, int& time) {
+    colors[u] = "Gray";
+    time += 1;
+    discoveryTimes[u] = time;
+
+    for (int v : graph.at(u)) {
+        if (colors[v] == "White") {
+            graph[v].remove(u);
+            directedDFSVisit(graph, v, colors, discoveryTimes, time);
+        }
+
+        if (colors[v] != "White") {
+            if (discoveryTimes[u] > discoveryTimes[v]) {
+                graph[v].remove(u);
+            }
+        }
+    }
+
+    colors[u] = "Black";
 }
 
 void transposeGraph(Graph& graph) {

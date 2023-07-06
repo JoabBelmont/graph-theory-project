@@ -8,7 +8,6 @@
 
 /* Building graphs */
 #include <map>
-#include <unordered_map>
 #include <list>
 
 /* Search */

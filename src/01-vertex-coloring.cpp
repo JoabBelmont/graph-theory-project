@@ -58,7 +58,6 @@ bool readGraphs(const string& filename, vector<Graph>& graphs, vector<int>& numV
 int main() {
     vector<Graph> graphs; 
     vector<int> numVertices;
-    int numGraphs = 0;
 
     /* Verifica se o arquivo pode ser lido e o lê, se for possível */
     if (!readGraphs("./tests/q1/SIM/cubic_bipartite_26_vertices.txt", graphs, numVertices)) {

@@ -1,12 +1,12 @@
 /**
  * @file 02-bacon-degrees.cpp
- * @author your name (you@domain.com)
- * @brief 
+ * @authors Antônio Joabe Alves Morais (539029)
+ *          Iarley Natã Lopes Souza (535779)
+ * @brief Nesse arquivo, é implementado o algoritmo de busca
+ *        em largura (BFS) para encontrar o número de Bacon
+ *        de um ator, dado um grafo de filmes (arestas) e atores (vértices).
  * @version 0.1
  * @date 2023-07-03
- * 
- * @copyright Copyright (c) 2023
- * 
  */
 
 #include "header.hpp"

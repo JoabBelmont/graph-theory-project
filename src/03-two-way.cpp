@@ -58,7 +58,7 @@ void bridgesDFSVisit(Graph& graph, int u, vector<string>& colors,
 
 /**
  * @brief Faz uma DFS modificada no grafo,
- *        direcionando fortemente todas as arestas
+ *        fortemente direcionando todas as arestas
  *        que não são pontes.
  * 
  * @param graph Grafo a ser analisado
@@ -68,7 +68,7 @@ void directedDFS(Graph& graph);
 
 /**
  * @brief Função auxiliar da DFS, que executa o algoritmo
- *        normal e direciona fortemente todas as arestas
+ *        normal e fortemente direcionando todas as arestas
  *        que não são pontes.
  * 
  * @param graph Grafo a ser analisado
@@ -100,6 +100,7 @@ int main() {
         graph[v].push_back(u);
     }
 
+    // Ordena as listas de adjacência
     for (auto& list : graph) {
         list.sort();
     }
@@ -170,6 +171,7 @@ void bridgesDFSVisit(Graph& graph, int u, vector<string>& colors,
 }
 
 void directedDFS(Graph& graph) {
+    // Inicializa as variáveis referentes à DFS
     int time { 0 };
     size_t verticesNum = graph.size();
     vector<string> colors;
@@ -177,6 +179,7 @@ void directedDFS(Graph& graph) {
 
     colors.resize(verticesNum, "White");
 
+    // Realiza a DFS
     for (int u = 0; u < verticesNum; ++u) {
         if (colors[u] == "White") {
             directedDFSVisit(graph, u, colors, discoveryTimes, time);
@@ -191,10 +194,15 @@ void directedDFSVisit(Graph& graph, int u, vector<string>& colors, vector<int>& 
 
     for (int v : graph.at(u)) {
         if (colors[v] == "White") {
+            // Remove a aresta (v, u) antes de visitar v
+            // a fim de eliminar a mão dupla
             graph[v].remove(u);
             directedDFSVisit(graph, v, colors, discoveryTimes, time);
         }
 
+        // Remove a mão dupla do vizinho v,
+        // já descoberto, para u, se o tempo de descoberta
+        // de u for maior que o de v
         if (colors[v] != "White") {
             if (discoveryTimes[u] > discoveryTimes[v]) {
                 graph[v].remove(u);
@@ -204,20 +212,6 @@ void directedDFSVisit(Graph& graph, int u, vector<string>& colors, vector<int>& 
 
     colors[u] = "Black";
 }
-
-void transposeGraph(Graph& graph) {
-    size_t verticesNum = graph.size();
-    Graph transposedGraph(verticesNum);
-
-    for (int u = 0; u < verticesNum; ++u) {
-        for (int v : graph[u]) {
-            transposedGraph[v].push_back(u);
-        }
-    }
-
-    graph = move(transposedGraph);
-}
-
 
 void readGraph(const string& filename, Graph& graph) {
     ifstream file(filename);

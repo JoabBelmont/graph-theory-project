@@ -35,15 +35,30 @@
             Neste problema, é necessária apenas a aplicação da \emph{BFS} (Breadth-First Search), já que o algoritmo já conta com o armazenamento das distâncias de todos os vértices dado uma origem, neste caso, Kevin Bacon.
 
             Portanto, dado um grafo não-direcionado, a \emph{BFS} irá fornecer os números de Bacon que o problema demanda por meio das distâncias armazenadas na execução do algoritmo.
+
         \subsection{Complexidade}
-            Essa solução também exige um tempo de execução:
-            $$ O(V + E) $$
+            Essa solução exige um tempo de execução:
+            $$ O(V + E\log{V}) $$
             Analizando o algoritmo de busca de forma agregada, temos que o tempo de inicialização onde se visita os vértices se dá por $O(V)$, assim como o tempo gasto com a fila.
 
-            Além disso, ao percorrer as adjacências (arestas) gasta-se $O(E)$.
+            Ao percorrer as adjacências (arestas) - por causa da estrutura usada (\verb|map|), que usa $O(\log{V})$ para realizar operações de inserção, busca e remoção - será exigido tempo $O(E\log{V})$.
 
-            Portanto, conforme já difundido, a análise de complexidade de um algorimo \emph{BFS} é $O(V + E)$.
+            Portanto, a análise de complexidade será de $O(V + E\log{V})$.
     \section{[Problema 3] Vias de mão dupla}
         \subsection{Descrição da solução}
+            A solução se divide em duas etapas:
+            \begin{enumerate}
+                \item Identificar as arestas que são pontes:
+                    Através de uma \emph{DFS} modificada, são encontradas as arestas que são pontes, que são depois removidas, dividindo o grafo em componentes desconectados. Essas arestas são armazenadas em um vetor de pares \verb|(u, v)|.
+                \item Direcionamento das arestas não-pontes:
+                    Em seguida, uma nova \emph{DFS} é realizada para direcionar as arestas restantes. Para cada vértice, as arestas que não são pontes são direcionadas a partir do vértice com menor tempo de descoberta para o de maior tempo de descoberta.
+            \end{enumerate}
+            Depois disso, as arestas que são pontes são adicionadas novamente ao grafo, e o mesmo é ordenado e impresso.
+
         \subsection{Complexidade}
+            A solução tem complexidade:
+            $$ O((V + E) + V\log{V}) $$
+            A primeira \emph{DFS} tem complexidade $O(V + E)$, já que é uma busca em profundidade. A segunda \emph{DFS} tem complexidade $O(V + E)$, já que é uma busca em profundidade. A ordenação tem complexidade $O(V\log{V})$, que ocorre para ordenar os vizinhos na lista de adjacência.
+
+            Portanto, a complexidade total é $O((V + E) + V\log{V})$.
 \end{document}

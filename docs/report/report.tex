@@ -51,7 +51,8 @@
                 \item Identificar as arestas que são pontes:
                     Através de uma \emph{DFS} modificada, são encontradas as arestas que são pontes, que são depois removidas, dividindo o grafo em componentes desconectados. Essas arestas são armazenadas em um vetor de pares \verb|(u, v)|.
                 \item Direcionamento das arestas não-pontes:
-                    Em seguida, uma nova \emph{DFS} é realizada para direcionar as arestas restantes. Para cada vértice, as arestas que não são pontes são direcionadas a partir do vértice com menor tempo de descoberta para o de maior tempo de descoberta.
+                    Em seguida, uma nova \emph{DFS} é realizada para direcionar as arestas restantes. Para cada vértice, como o grafo ainda é não-direcionado, o algoritmo irá retirar, digamos, a aresta (v, u), deixando a aresta (u, v). Isso é feito para cada vértice, e a \emph{DFS} é executada novamente.
+                    Quando um vértice não possuir mais vizinhos ainda não visitados, o tempo de descoberta do mesmo é comparado com o do seu vizinho: se for maior, a mão dupla (v, u) vai ser removida.
             \end{enumerate}
             Depois disso, as arestas que são pontes são adicionadas novamente ao grafo, e o mesmo é ordenado e impresso.
 

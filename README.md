@@ -1,4 +1,4 @@
-## Aplicação de Ávores Balanceadas
+## Problemas de Grafos
 
 ### Alunos
 - **Nome:** Antônio Joabe Alves Morais \ **Matrícula:** 539029

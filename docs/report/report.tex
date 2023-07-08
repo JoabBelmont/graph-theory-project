@@ -49,10 +49,13 @@
             A solução se divide em duas etapas:
             \begin{enumerate}
                 \item Identificar as arestas que são pontes:
-                    Através de uma \emph{DFS} modificada, são encontradas as arestas que são pontes, que são depois removidas, dividindo o grafo em componentes desconectados. Essas arestas são armazenadas em um vetor de pares \verb|(u, v)|.
+                    Através de uma \emph{DFS} modificada, são encontradas as arestas que são pontes, que são depois removidas, dividindo o grafo em componentes desconectados. Essas arestas são armazenadas em um vetor de pares $(u, v)$.
                 \item Direcionamento das arestas não-pontes:
-                    Em seguida, uma nova \emph{DFS} é realizada para direcionar as arestas restantes. Para cada vértice, como o grafo ainda é não-direcionado, o algoritmo irá retirar, digamos, a aresta (v, u), deixando a aresta (u, v). Isso é feito para cada vértice, e a \emph{DFS} é executada novamente.
-                    Quando um vértice não possuir mais vizinhos ainda não visitados, o tempo de descoberta do mesmo é comparado com o do seu vizinho: se for maior, a mão dupla (v, u) vai ser removida.
+                    Em seguida, uma nova \emph{DFS} é realizada para direcionar as arestas restantes. Para cada vértice, como o grafo ainda é não-direcionado, o algoritmo irá retirar, digamos, a aresta $(v, u)$, deixando a aresta $(u, v)$, onde $u$ é o vértice analisado e $v$ é um vizinho de $u$.
+
+                    Isso é feito para cada vértice, e a \emph{DFS} é executada novamente.
+
+                    Quando um vértice não possuir mais vizinhos ainda não visitados, o tempo de descoberta do mesmo é comparado com o do seu vizinho: se for maior, a mão dupla $(v, u)$ será removida.
             \end{enumerate}
             Depois disso, as arestas que são pontes são adicionadas novamente ao grafo, e o mesmo é ordenado e impresso.
 

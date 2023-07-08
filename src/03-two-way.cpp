@@ -89,7 +89,11 @@ void transposeGraph(Graph& graph);
 int main() {
     Graph graph;
     vector<pair<int, int>> bridges;
-    readGraph("./tests/q3/grafo3.txt", graph);
+
+    string graphFilename = "grafo3.txt";
+    string filePath = "./tests/q3/" + graphFilename;
+
+    readGraph(filePath, graph);
 
     bridgesDFS(graph, bridges);
     directedDFS(graph);
@@ -123,7 +127,7 @@ void bridgesDFS(Graph& graph, vector<pair<int, int>>& bridges) {
     parents[0] = 0;
 
     // Realiza a DFS
-    for (int u = 0; u < verticesNum; ++u)
+    for (size_t u = 0; u < verticesNum; ++u)
         if (colors[u] == "White")
             bridgesDFSVisit(graph, u, colors, parents, discoveryTimes, lowTimes, time, bridges);
 
@@ -180,7 +184,7 @@ void directedDFS(Graph& graph) {
     colors.resize(verticesNum, "White");
 
     // Realiza a DFS
-    for (int u = 0; u < verticesNum; ++u) {
+    for (size_t u = 0; u < verticesNum; ++u) {
         if (colors[u] == "White") {
             directedDFSVisit(graph, u, colors, discoveryTimes, time);
         }
@@ -236,7 +240,7 @@ void readGraph(const string& filename, Graph& graph) {
 }
 
 void printEdges(Graph& graph) {
-    for (int u = 0; u < graph.size(); ++u) {
+    for (size_t u = 0; u < graph.size(); ++u) {
         for (int v : graph[u])
             cout << "(" << u << "," << v << ")" << endl;
     }

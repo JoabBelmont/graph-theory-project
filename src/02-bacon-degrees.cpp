@@ -46,7 +46,10 @@ void BFS(const Graph<string, Neighbor>& graph, const string& start);
 int main() {
     Graph<string, Neighbor> graph;
 
-    readCSV("./tests/q2/input.txt", graph);
+    string graphFilename = "input.txt";
+    string filePath = "./tests/q2/" + graphFilename;
+
+    readCSV(filePath, graph);
 
     BFS(graph, "Kevin Bacon");
 

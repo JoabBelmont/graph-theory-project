@@ -59,8 +59,15 @@ int main() {
     vector<Graph> graphs; 
     vector<int> numVertices;
 
+    /* Nome do arquivo que contém os grafos */
+    string graphFilename = "snarks_24_vertices.txt";
+    /* Nome da pasta que contém os grafos: (SIM / NAO)*/
+    string YorN = "NAO";
+    /* Caminho completo do arquivo */
+    string filePath = "./tests/q1/" + YorN + "/" + graphFilename;
+
     /* Verifica se o arquivo pode ser lido e o lê, se for possível */
-    if (!readGraphs("./tests/q1/SIM/cubic_bipartite_26_vertices.txt", graphs, numVertices)) {
+    if (!readGraphs(filePath, graphs, numVertices)) {
         cout << "Failed to open file." << endl;
         return 1;
     }

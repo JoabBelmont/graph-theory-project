@@ -1,8 +1,8 @@
 ## Problemas de Grafos
 
 ### Alunos
-- **Nome:** Antônio Joabe Alves Morais \ **Matrícula:** 539029
-- **Nome:** Iarley Natã Lopes Souza \ **Matrícula:** 535779
+- Antônio Joabe Alves Morais
+- Iarley Natã Lopes Souza
 
 ### Execução
 Para compilar o programa, basta executar o comando `make` na pasta raiz do projeto.
